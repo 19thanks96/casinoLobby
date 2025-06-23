@@ -1,0 +1,89 @@
+import { defineConfig } from 'vite';
+import path from 'path';
+import styleInject from 'vite-plugin-style-inject';
+import {createHtmlPlugin} from "vite-plugin-html";
+import { writeFileSync } from 'fs';
+import { resolve, join } from 'path';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { visualizer } from "rollup-plugin-visualizer";
+
+
+export default defineConfig(() => {
+    const isDev = process.env.NODE_ENV === 'dev';
+
+    return {
+    plugins: [
+        isDev &&
+        visualizer({
+            open: true,
+            gzipSize: true,
+            brotliSize: true,
+        }),
+        styleInject(),
+        createHtmlPlugin({
+            inject: {
+                data: {
+                    title: 'My App',
+                },
+            },
+            minify: true,
+        }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'imgAssets',
+                    dest: '',
+                },
+            ],
+        }),
+
+        {
+            name: 'generate-html-after-build',
+            generateBundle() {
+                const distDir = resolve(__dirname, 'dist');
+
+                // Контент будущего HTML-файла
+                const htmlContent = `
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script type="module" src="./bundle.js"></script>
+
+    <title>Social Slot</title>
+</head>
+<body>
+<div id="place-to-integrate">
+
+</div>
+</body>
+</html>
+                `;
+                writeFileSync(join(distDir, 'index.html'), htmlContent, 'utf-8');
+                console.log('Custom HTML file created after build!');
+            },
+        },
+    ],
+    build: {
+        lib: {
+            entry: path.resolve(__dirname, 'src/main.ts'),
+            name: 'MyBundle',
+            formats: ['iife'],
+            fileName: () => `bundle.js`,
+        },
+        cssCodeSplit: false,
+        sourcemap: false,
+        minify: "esbuild",
+        rollupOptions: {
+            output: {
+                inlineDynamicImports: true,
+                manualChunks: undefined,
+            },
+        },
+        target: 'esnext',
+        outDir: 'dist',
+        emptyOutDir: true,
+    },
+
+}});

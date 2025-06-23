@@ -1,0 +1,30 @@
+{
+  "name": "front-end",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": " vite --port 777",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "watch": "sass styles/style.scss src/styles/style.css --watch --no-source-map"
+  },
+  "devDependencies": {
+    "@rollup/plugin-html": "^2.0.0",
+    "@types/stats.js": "^0.17.3",
+    "rollup-plugin-visualizer": "^5.14.0",
+    "sass": "^1.89.2",
+    "stats.js": "^0.17.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vite-plugin-html": "^3.2.2",
+    "vite-plugin-singlefile": "^2.2.0",
+    "vite-plugin-static-copy": "^3.0.2",
+    "vite-plugin-style-inject": "^0.0.1"
+  },
+  "dependencies": {
+    "gsap": "^3.12.7",
+    "pixi.js": "^7.4.3"
+  }
+}

@@ -1,0 +1,236 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+body{
+  background: white;
+  height: 100vh;
+}
+
+#place-to-integrate{
+  width: 100%;
+  height: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /*color-scheme: light dark;*/
+
+  background-color: transparent;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  align-content: center;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  /*background-color: #1f2025;*/
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+}
+
+#app.chill-debug{
+  width: 427px;
+  height: 636px;
+  left: 10px;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  #app {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+.stats {
+  position: fixed !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 10000 !important;
+  display: flex;
+  flex-direction: row;
+}
+
+
+
+#cw-popup {
+  position: absolute;
+  z-index: 99;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 5px;
+  height: fit-content;
+  transform: translateY(calc(-100% - 10px));
+  padding: 10px 0 40px 0;
+  background-color: rgba(173, 216, 230, 0.3);
+
+  border-radius:0 0 10px 10px ;
+  overflow: hidden;
+}
+#cw-popup[data-type="error"] {
+  background: #ff0000;
+}
+#cw-popup[data-type="success"] {
+  background: #00ff00;
+}
+#cw-popup[data-type="info"] {
+  background: yellow;
+}
+
+#cw-popup[data-opened="true"] .cw-after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background-color: rgba(0, 7, 45, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.cw-popup-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#cw-popup[data-opened="true"][data-type="error"] {
+  animation: popup-fade-in 0.2s ease-in-out forwards;
+}
+#cw-popup[data-opened="true"][data-type="success"],
+#cw-popup[data-opened="true"][data-type="info"] {
+  animation:popup-show 3s ease-in-out forwards;
+}
+
+@keyframes popup-fade-in {
+  0% {
+    transform: translateY(calc(-100% - 10px));
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes popup-show {
+  0% {
+    transform: translateY(calc(-100% - 10px));
+  }
+  10%, 90%{
+    transform: translateY(0);
+  }
+  100% {
+    /*transform: translateY(0);*/
+    transform: translateY(calc(-100% - 10px));
+  }
+}
+#cw-input-bar{
+  width: 100%;
+  height: 50px;
+  background: rgba(0, 7, 45, 0.5);
+  position: absolute;
+  bottom: -60px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  flex-direction: row;
+}
+
+#cw-input-bar.cw-active {
+  bottom: 0;
+}
+
+#cw-spin-button{
+  width: 60px;
+  height: 60px;
+  background-color: rgba(0, 7, 0, 0.8);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  cursor: pointer;
+}
+
+#cw-spin-button:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background-image: url(https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/main/SpinBtn.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: all 0.2s ease-in-out;
+}
+
+#cw-spin-button:hover:after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
