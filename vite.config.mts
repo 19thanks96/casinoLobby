@@ -12,6 +12,7 @@ export default defineConfig(() => {
     const isDev = process.env.NODE_ENV === 'dev';
 
     return {
+
     plugins: [
         isDev &&
         visualizer({
@@ -65,6 +66,7 @@ export default defineConfig(() => {
             },
         },
     ],
+    base: './',
     build: {
         lib: {
             entry: path.resolve(__dirname, 'src/main.ts'),
