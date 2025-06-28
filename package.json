@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "gsap": "^3.12.7",
+    "http-proxy-middleware": "^3.0.5",
     "pixi.js": "^7.4.3"
   }
 }

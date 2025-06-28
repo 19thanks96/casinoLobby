@@ -15,7 +15,7 @@ export class Loader {
                                 assets: [
                                     {
                                         "alias":"slot-background",
-                                        "src": '/ImgAssets/forest.png',
+                                        "src": 'https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/forest.png',
                                     },
                                 ]
                             }
@@ -24,8 +24,8 @@ export class Loader {
         });
         await Assets.loadBundle('bg');
 
-        Assets.load('/ImgAssets/casinoLobby.json').then(() => {
-            const sheet = Assets.cache.get('/ImgAssets/casinoLobby.json') as Spritesheet;
+        Assets.load('https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/casinoLobby.json').then(() => {
+            const sheet = Assets.cache.get('https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/casinoLobby.json') as Spritesheet;
 
             if (!sheet) {
                 console.error('Spritesheet not found!');

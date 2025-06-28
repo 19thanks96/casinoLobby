@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
-import path from 'path';
+import * as path from 'path';
 import styleInject from 'vite-plugin-style-inject';
 import {createHtmlPlugin} from "vite-plugin-html";
 import { writeFileSync } from 'fs';
 import { resolve, join } from 'path';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { visualizer } from "rollup-plugin-visualizer";
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 
 export default defineConfig(() => {
@@ -28,14 +28,6 @@ export default defineConfig(() => {
                 },
             },
             minify: true,
-        }),
-        viteStaticCopy({
-            targets: [
-                {
-                    src: 'imgAssets',
-                    dest: '',
-                },
-            ],
         }),
 
         {
@@ -67,7 +59,18 @@ export default defineConfig(() => {
         },
     ],
     base: './',
-    build: {
+    server: {
+        port: 777,
+        proxy: {
+            '/resources': {
+                target: 'https://p2w-object-store.fra1.cdn.digitaloceanspaces.com',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/resources/, ''),
+            },
+        },
+    },
+
+        build: {
         lib: {
             entry: path.resolve(__dirname, 'src/main.ts'),
             name: 'MyBundle',
