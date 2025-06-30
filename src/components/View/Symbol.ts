@@ -1,8 +1,7 @@
 import {Positions} from "../Model/Positions.ts";
 import {ITextures} from "./Textures.ts";
 import {Assets, Container, DisplayObject,  Sprite} from "pixi.js";
-
-
+import {GarbageCollector} from "../Model/GarbageCollector.ts";
 
 export class Symbol {
     index: number | null = null;
@@ -15,38 +14,48 @@ export class Symbol {
     textures: ITextures = ITextures.getInstance();
     sprite = null as Sprite | null;
     symbolContainer: Container | null = null;
+    garbageCollector: GarbageCollector = GarbageCollector.getInstance();
 
 
     init(index: number, container: Container<DisplayObject>, symbolIndex: number, count: number = 0): void {
         this.index = index;
         this.reelContainer = container;
-        this.elementSize = container.width;
-        this.maxHeight = container.width * 3 + this.positions.gapSymbols! * 2;
-
+        const setSizes = () => {
+            this.elementSize = container.width;
+            this.maxHeight = container.width * 3 + this.positions.gapSymbols! * 2;
+        }
+        setSizes()
         this.pasteNewSymbolsBefore(symbolIndex, count);
+        this.garbageCollector.setListeners('resize', () => {
+            setSizes()
+        }, 'symbolResize')
     }
 
     private createSingleSymbolContainer(color: number, count: number = 0): Container {
         const symbolContainer = new Container();
-        symbolContainer.width = this.elementSize;
-        symbolContainer.height = this.elementSize;
 
         const spritePath = Assets.get(this.textures.getSymbolTextures(color));
         this.sprite = new Sprite(spritePath);
-
-        const scale = Math.min(
-            this.elementSize / spritePath.width,
-            this.elementSize / spritePath.height
-        );
-        this.sprite.scale.set(scale, scale);
-
         this.sprite.anchor.set(0.5, 0.5);
-        this.sprite.x = this.elementSize / 2;
-        this.sprite.y = this.elementSize / 2;
 
-        symbolContainer.addChild( this.sprite);
+        const setSizes = () => {
+            symbolContainer.width = this.elementSize;
+            symbolContainer.height = this.elementSize;
+            const scale = Math.min(
+                this.elementSize / spritePath.width,
+                this.elementSize / spritePath.height
+            );
+            this.sprite!.scale.set(scale, scale);
+            this.sprite!.x = this.elementSize / 2;
+            this.sprite!.y = this.elementSize / 2;
+        }
+        setSizes()
         symbolContainer.y = ((this.elementSize + this.positions.gapSymbols!) * this.index!) - (this.maxHeight * count);
-
+        symbolContainer.addChild(this.sprite);
+        this.garbageCollector.setListeners('resize', () => {
+            // setSizes()
+            // this.setToInitialPosition(0)
+        }, 'symbolResize')
         return symbolContainer;
     }
 

@@ -5,6 +5,7 @@ import {gsap} from "gsap";
 import Stats from "stats.js";
 import {Positions} from "../Model/Positions.ts";
 import {Application, Container, DisplayObject, Graphics} from "pixi.js";
+import {GarbageCollector} from "../Model/GarbageCollector.ts";
 
 export class Reel {
     private reelMaxHeight = 0;
@@ -14,8 +15,10 @@ export class Reel {
     private rollsBeforeStop = 1;
 
     private readonly positions = Positions.getInstance();
+    private garbageCollector: GarbageCollector = GarbageCollector.getInstance();
 
     private reelIndex: number | null = null;
+    private isSetReelGraphics = false;
 
     private stats: any;
     isStopped = false;
@@ -23,40 +26,75 @@ export class Reel {
 
     async init(reelIndex: number, container: Container<DisplayObject>, app: Application): Promise<void> {
         this.reelIndex = reelIndex;
+        const setupReelBg = () => {
+            if(!this.positions.tableSize  || !this.positions.symbolSize ) {
+                console.error('tableSize or symbolSize is null')
+                return
+            }
+            this.reelBg.x = (app.renderer.screen.width / 2) - (this.positions.tableSize / 2) + (this.positions.initialTableMargin || 0);
+            this.reelBg.y = (app.renderer.screen.height / 2) - (this.positions.tableSize / 2) + (this.positions.initialTableMargin || 0);
+            this.reelBg.width = this.positions.tableSize - (this.positions.initialTableMargin * 2)
+            this.reelBg.height = this.positions.tableSize - (this.positions.initialTableMargin * 2);
+            this.reelMaxHeight = this.reelBg.height;
+        }
+        const setReelGraphics = () => {
+            if(!this.positions.tableSize  || !this.positions.symbolSize ) {
+                console.error('tableSize or symbolSize is null')
+                return
+            }
+            if(this.isSetReelGraphics) {
+                reelBgGraphics.clear();
+                reelRect.clear();
+            }
+            reelBgGraphics.beginFill(0x000000);
+            reelRect.beginFill(0x000000);
 
-        this.reelBg.x = (app.renderer.screen.width / 2) - (container.width / 2) + (this.positions.initialTableMargin || 0);
-        this.reelBg.y = (app.renderer.screen.height / 2) - (container.height / 2) + (this.positions.initialTableMargin || 0);
-        this.reelBg.width = container.width - (this.positions.initialTableMargin * 2)
-        this.reelBg.height = container.height - (this.positions.initialTableMargin * 2);
+            reelBgGraphics.drawRect(
+                0,
+                0,
+                this.positions.tableSize - (this.positions.initialTableMargin * 2),
+                this.positions.tableSize - (this.positions.initialTableMargin * 2)
+            );
+            reelRect.drawRect(
+                0,
+                0,
+                this.positions.symbolSize?.width || 0,
+                this.positions.tableSize - (this.positions.initialTableMargin * 2),
+            );
+            this.rolledReel.x = ((this.positions.reelSize?.width || 0) * reelIndex) + ((this.positions.gapSymbols || 0) * reelIndex);
+            this.rolledReel.y = 0;
+            this.rolledReel.width = this.positions.symbolSize?.width || 0;
+            this.rolledReel.height = this.positions.tableSize - (this.positions.initialTableMargin * 2);
+            this.isSetReelGraphics = true;
+        }
+        setupReelBg()
         const reelBgGraphics = new Graphics();
         reelBgGraphics.beginFill(0x000000);
+
         reelBgGraphics.drawRect(
             0,
             0,
-            container.width - (this.positions.initialTableMargin * 2),
-            container.height - (this.positions.initialTableMargin * 2)
+            this.positions.tableSize! - (this.positions.initialTableMargin * 2),
+            this.positions.tableSize! - (this.positions.initialTableMargin * 2)
         );
-
         reelBgGraphics.alpha = 0;
         this.reelBg.addChild(reelBgGraphics);
         this.reelMaxHeight = this.reelBg.height;
         container.addChild(this.reelBg);
 
-        this.rolledReel.x = ((this.positions.reelSize?.width || 0) * reelIndex) + ((this.positions.gapSymbols || 0) * reelIndex);
-        this.rolledReel.y = 0;
         const reelRect = new Graphics();
         reelRect.beginFill(0x000000);
-        reelRect.drawRect(
-            0,
-            0,
-            this.positions.symbolSize?.width || 0,
-            container.height - (this.positions.initialTableMargin * 2),
-        );
+        setReelGraphics()
+
         reelRect.alpha = 0;
         this.rolledReel.addChild(reelRect);
         this.reelBg.addChild(this.rolledReel);
 
         this.setupSymbols(reelIndex);
+        this.garbageCollector.setListeners('resize', () => {
+            setupReelBg()
+            setReelGraphics()
+        }, 'reelResize')
 
     }
 

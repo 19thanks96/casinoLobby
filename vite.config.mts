@@ -5,7 +5,6 @@ import {createHtmlPlugin} from "vite-plugin-html";
 import { writeFileSync } from 'fs';
 import { resolve, join } from 'path';
 import { visualizer } from "rollup-plugin-visualizer";
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 
 export default defineConfig(() => {
@@ -53,42 +52,41 @@ export default defineConfig(() => {
 </body>
 </html>
                 `;
-                writeFileSync(join(distDir, 'index.html'), htmlContent, 'utf-8');
-                console.log('Custom HTML file created after build!');
+                    writeFileSync(join(distDir, 'index.html'), htmlContent, 'utf-8');
+                    console.log('Custom HTML file created after build!');
+                },
+            },
+        ],
+        base: './',
+        server: {
+            port: 777,
+            proxy: {
+                '/resources': {
+                    target: 'https://p2w-object-store.fra1.cdn.digitaloceanspaces.com',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/resources/, ''),
+                },
             },
         },
-    ],
-    base: './',
-    server: {
-        port: 777,
-        proxy: {
-            '/resources': {
-                target: 'https://p2w-object-store.fra1.cdn.digitaloceanspaces.com',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/resources/, ''),
-            },
-        },
-    },
-
         build: {
-        lib: {
-            entry: path.resolve(__dirname, 'src/main.ts'),
-            name: 'MyBundle',
-            formats: ['iife'],
-            fileName: () => `bundle.js`,
-        },
-        cssCodeSplit: false,
-        sourcemap: false,
-        minify: "esbuild",
-        rollupOptions: {
-            output: {
-                inlineDynamicImports: true,
-                manualChunks: undefined,
+            lib: {
+                entry: path.resolve(__dirname, 'src/main.ts'),
+                name: 'MyBundle',
+                formats: ['iife'],
+                fileName: () => `bundle.js`,
             },
+            cssCodeSplit: false,
+            sourcemap: false,
+            minify: "esbuild",
+            rollupOptions: {
+                output: {
+                    inlineDynamicImports: true,
+                    manualChunks: undefined,
+                },
+            },
+            target: 'esnext',
+            outDir: 'dist',
+            emptyOutDir: true,
         },
-        target: 'esnext',
-        outDir: 'dist',
-        emptyOutDir: true,
-    },
-
-}});
+    }
+});

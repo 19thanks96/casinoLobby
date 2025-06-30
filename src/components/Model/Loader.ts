@@ -6,45 +6,46 @@ export class Loader {
 
     async initBgLoad() {
         await Assets.init({
-            manifest:
-                {
-                    bundles:
-                        [
+            manifest: {
+                bundles: [
+                    {
+                        name: 'bg',
+                        assets: [
                             {
-                                name: 'bg',
-                                assets: [
-                                    {
-                                        "alias":"slot-background",
-                                        "src": 'https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/forest.png',
-                                    },
-                                ]
-                            }
+                                alias: "slot-background",
+                                src: 'https://p2w-object-store.fra1.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/forest.png',
+                                crossOrigin: 'anonymous', // Установлено для текстуры
+                            },
                         ],
-                },
+                    },
+                ],
+            },
         });
+
         await Assets.loadBundle('bg');
 
-        Assets.load('https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/casinoLobby.json').then(() => {
-            const sheet = Assets.cache.get('https://p2w-object-store.fra1.cdn.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/casinoLobby.json') as Spritesheet;
+        const jsonUrl = 'https://p2w-object-store.fra1.digitaloceanspaces.com/resources/ivanTrash/lobbyTest/casinoLobby.json';
 
-            if (!sheet) {
-                console.error('Spritesheet not found!');
-                return;
+
+        const resource = {alias: 'spritesheet', src: jsonUrl, crossOrigin: 'anonymous'};
+        await Assets.load([resource]);
+
+        const sheet = Assets.cache.get(jsonUrl) as Spritesheet;
+
+        if (!sheet) {
+            console.error('Spritesheet not found!');
+            return;
+        }
+
+        Object.keys(sheet.textures).forEach((texture) => {
+            if (texture === 'tableBetter-removebg-preview.png') {
+                this.textures.setTextures('table', texture);
+            } else {
+                this.textures.setSymbolsTextures(texture);
             }
-
-            Object.keys(sheet.textures).forEach((texture) => {
-                if(texture === 'tableBetter-removebg-preview.png') {
-                    this.textures.setTextures('table',texture)
-
-                } else {
-                    this.textures.setSymbolsTextures(texture)
-                    console.log(' not tableBetter-removebg-preview.png',texture)
-                }
-            })
-            console.log('Спрайты успешно добавлены на сцену!');
         });
+
+        console.log('Спрайты успешно добавлены на сцену!');
     }
-
-
 }
 

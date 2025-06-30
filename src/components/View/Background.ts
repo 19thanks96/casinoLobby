@@ -10,6 +10,7 @@ export class Background {
     emitter: Emitter = Emitter  .getInstance();
     positions: Positions = Positions.getInstance();
     reelsManager: ReelsManager = ReelsManager.getInstance();
+    isTableMaskDrawed = false;
 
     drawGoButton(app: Application) {
         const ButtonStart = new Graphics();
@@ -52,7 +53,6 @@ export class Background {
 
     drawSlotBackground(app: Application) {
         let bgTexture = Assets.get('bg-slot-background');
-        console.log('Состояние Assets.cache:', Assets.cache['_cache']);
 
         if (!bgTexture) {
             console.error('Ошибка: Текстура "bg-slot-background" не найдена в Assets.get!');
@@ -98,6 +98,7 @@ export class Background {
         tableSprite.anchor.set(0.5, 0.5);
         const tableSpriteMask = new Container();
         tableSpriteMask.addChild(tableSprite);
+        const tableSpriteClone = new Sprite(tableSprite.texture);
 
 
         const tableMask = new Graphics();
@@ -109,32 +110,22 @@ export class Background {
             const screenWidth = app.renderer.screen.width;
             const screenHeight = app.renderer.screen.height;
 
-
-            const screenAspect = screenWidth / screenHeight;
             const textureAspect = tableSprite.texture.width / tableSprite.texture.height;
-
-            let size;
-
-            if (screenAspect < textureAspect) {
-                if (screenWidth < 450) {
-                    size = Math.max(screenWidth - 200, 250);
-                } else {
-                    size = Math.max(screenHeight - 500, 250);
-                }
-
-            } else {
-                if(screenWidth - 500 < screenHeight - 300) {
-                    size = Math.max(screenWidth - 500, 250);
-                } else {
-                    size = Math.max(screenHeight - 300, 250);
-                }
+            this.positions.recalculate(app, textureAspect);
+            const size = this.positions.tableSize;
+            if(!size) {
+                console.error('tableSize is null')
+                return
             }
-
             const maskSize =  size - ((this.positions.initialTableMargin ?? 0) * 2) ;
+
+            if(this.isTableMaskDrawed) {
+                tableMask.clear()
+            }
 
             tableMask.beginFill(0x000000);
             tableMask.drawRect(0, 0, maskSize, maskSize);
-            tableMask.endFill();
+            // tableMask.endFill();
 
 
             tableMask.pivot.set(maskSize / 2, maskSize / 2);
@@ -142,7 +133,8 @@ export class Background {
 
 
             tableSprite.width = tableSprite.height = size;
-            this.positions.recalculate(size)
+            // tableSpriteMask.width = tableSpriteMask.height = size;
+
 
             tableSprite.position.set(
                 screenWidth / 2,
@@ -151,7 +143,6 @@ export class Background {
             tableSpriteMask.position.set(0, 0);
             tableSpriteMask.scale.set(1, 1);
 
-            const tableSpriteClone = new Sprite(tableSprite.texture);
             tableSpriteClone.anchor.set(tableSprite.anchor.x, tableSprite.anchor.y);
             tableSpriteClone.position.set(tableSprite.position.x, tableSprite.position.y);
             tableSpriteClone.width = tableSprite.width;
@@ -174,6 +165,6 @@ export class Background {
             resizeTableSprite()
         }, 'tableResize')
         this.reelsManager.init(tableSpriteMask, app)
-        console.log('tableSprite', tableSpriteMask.width, tableSpriteMask.height)
+        // console.log('tableSprite', tableSpriteMask.width, tableSpriteMask.height)
     }
 }
